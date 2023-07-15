@@ -24,7 +24,7 @@ type tokenResponse struct {
 
 func authenticate(bot *Bot) error {
 	bot.AuthLink <- fmt.Sprintf(
-		"%s?client_id=%s&redirect_uri=%s&response_type=code&scope=%s\n\n",
+		"%s?client_id=%s&redirect_uri=%s&response_type=code&scope=%s",
 		authURL,
 		bot.options.ClientID,
 		redirectURI,
