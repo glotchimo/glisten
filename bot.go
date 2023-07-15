@@ -48,6 +48,10 @@ func (b *Bot) AddHandler(trigger string, handler Handler) {
 func (b *Bot) Connect() {
 	b.Client = twitch.NewClient(b.options.Username, "oauth:"+b.tokens.access)
 
+	b.Client.OnConnect(func() {
+		fmt.Printf("bot connected to %s as %s\n", b.options.Channel, b.options.Username)
+	})
+
 	b.Client.OnPrivateMessage(func(m twitch.PrivateMessage) {
 		components := strings.Split(m.Message, " ")
 		if len(components) < 1 {
@@ -57,7 +61,9 @@ func (b *Bot) Connect() {
 
 		for trigger, handler := range b.handlers {
 			if cmd == trigger {
-				b.Events <- handler(m)
+				event := handler(Message(m))
+				b.Events <- event
+				fmt.Println("handled event:", event.String())
 				return
 			}
 		}
