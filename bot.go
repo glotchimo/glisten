@@ -52,7 +52,7 @@ func (b *Bot) AddHandler(trigger string, handler Handler) {
 // Connect launches the OAuth flow and, if completed, connects to Twitch IRC
 // and starts listening for messages, and should be launched in a goroutine.
 func (b *Bot) Connect() {
-	b.client = twitch.NewClient(b.options.Username, "oauth:"+b.options.Password)
+	b.client = twitch.NewClient(b.options.Username, b.options.Password)
 
 	b.client.OnConnect(func() {
 		log.Printf("bot connected to %s as %s\n", b.options.Channel, b.options.Username)
