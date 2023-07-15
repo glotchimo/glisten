@@ -2,11 +2,13 @@ package gleam
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/gempir/go-twitch-irc/v4"
 )
 
+// BotOptions are the values needed for connecting the bot to a channel/user
 type BotOptions struct {
 	Channel      string
 	Username     string
@@ -14,11 +16,22 @@ type BotOptions struct {
 	ClientSecret string
 }
 
+// Bot is an abstraction over Twitch IRC that facilitates the creation of
+// command-driven chat bots.
 type Bot struct {
-	Client *twitch.Client
+	// AuthLink is a single-slot buffered channel used at the start of the
+	// connection process to pass out an OAuth link.
+	AuthLink chan string
+
+	// Events is the channel where all events arrive after being handled by the
+	// registered handlers.
 	Events chan Event
+
+	// Errors is the channel were all connection and post-connection errors are
+	// sent for handling by the user.
 	Errors chan error
 
+	client   *twitch.Client
 	handlers map[string]Handler
 	options  BotOptions
 	tokens   struct {
@@ -27,35 +40,41 @@ type Bot struct {
 	}
 }
 
+// NewBot sets up a Bot with the provided options and opens its channels.
 func NewBot(opts *BotOptions) (*Bot, error) {
 	var bot Bot
 
 	bot.handlers = make(map[string]Handler)
 	bot.options = *opts
 
-	if err := authenticate(&bot); err != nil {
-		return nil, fmt.Errorf("error authenticating with Twitch: %w", err)
-	}
-
+	bot.AuthLink = make(chan string, 1)
 	bot.Events = make(chan Event)
 	bot.Errors = make(chan error)
 
 	return &bot, nil
 }
 
+// Add handler registers an event handler function on the bot's handler map.
 func (b *Bot) AddHandler(trigger string, handler Handler) {
 	b.handlers[trigger] = handler
 }
 
+// Connect launches the OAuth flow and, if completed, connects to Twitch IRC
+// and starts listening for messages, and should be launched in a goroutine.
 func (b *Bot) Connect() {
-	b.Client = twitch.NewClient(b.options.Username, "oauth:"+b.tokens.access)
+	if err := authenticate(b); err != nil {
+		b.Errors <- fmt.Errorf("error authenticating with Twitch: %w", err)
+	}
+	close(b.AuthLink)
 
-	b.Client.OnConnect(func() {
-		fmt.Printf("bot connected to %s as %s\n", b.options.Channel, b.options.Username)
+	b.client = twitch.NewClient(b.options.Username, "oauth:"+b.tokens.access)
+
+	b.client.OnConnect(func() {
+		log.Printf("bot connected to %s as %s\n", b.options.Channel, b.options.Username)
 	})
 
-	b.Client.OnPrivateMessage(func(m twitch.PrivateMessage) {
-		components := strings.Split(m.Message, " ")
+	b.client.OnPrivateMessage(func(msg twitch.PrivateMessage) {
+		components := strings.Split(msg.Message, " ")
 		if len(components) < 1 {
 			return
 		}
@@ -63,20 +82,24 @@ func (b *Bot) Connect() {
 
 		for trigger, handler := range b.handlers {
 			if cmd == trigger {
-				event := handler(Message(m))
+				event := handler(Message(msg))
 				b.Events <- event
-				fmt.Println("handled event:", event.String())
+				log.Println("handled event:", event.String())
 				return
 			}
 		}
 	})
 
-	b.Client.OnNoticeMessage(func(m twitch.NoticeMessage) {
-		b.Errors <- fmt.Errorf("error in notice callback: %s", m.Message)
+	b.client.OnNoticeMessage(func(msg twitch.NoticeMessage) {
+		b.Errors <- fmt.Errorf("error in notice callback: %s", msg.Message)
 	})
 
-	b.Client.Join(b.options.Channel)
-	if err := b.Client.Connect(); err != nil {
+	b.client.Join(b.options.Channel)
+	if err := b.client.Connect(); err != nil {
 		b.Errors <- fmt.Errorf("error connecting to channel: %w", err)
 	}
+}
+
+func (b Bot) Say(msg string) {
+	b.client.Say(b.options.Channel, msg)
 }
