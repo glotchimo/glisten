@@ -1,0 +1,4 @@
+github.com/gempir/go-twitch-irc/v4 v4.0.0 h1:sHVIvbWOv9nHXGEErilclxASv0AaQEr/r/f9C0B9aO8=
+github.com/gempir/go-twitch-irc/v4 v4.0.0/go.mod h1:QsOMMAk470uxQ7EYD9GJBGAVqM/jDrXBNbuePfTauzg=
+github.com/glotchimo/gleam v0.0.4 h1:S18wwrO7s51sPDcSfePRo7+gKLt43d1w8q09D/iuLzA=
+github.com/glotchimo/gleam v0.0.4/go.mod h1:2nTvoQMtFdUNCCPnjpdmiO/U66wcfjH0Gi9TDtGf4+Y=
