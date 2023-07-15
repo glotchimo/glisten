@@ -26,10 +26,9 @@ func (t *timer) Start(ch chan *timer) {
 func main() {
 	// Create a bot with credentials in the environment
 	bot, err := gleam.NewBot(&gleam.BotOptions{
-		Channel:      os.Getenv("TWITCH_CHANNEL"),
-		Username:     os.Getenv("TWITCH_USERNAME"),
-		ClientID:     os.Getenv("TWITCH_CLIENT_ID"),
-		ClientSecret: os.Getenv("TWITCH_CLIENT_SECRET"),
+		Channel:  os.Getenv("TWITCH_CHANNEL"),
+		Username: os.Getenv("TWITCH_USERNAME"),
+		Password: os.Getenv("TWITCH_PASSWORD"),
 	})
 	if err != nil {
 		log.Fatal("error creating new bot: ", err)
@@ -57,7 +56,6 @@ func main() {
 
 	// Connect the bot and handle the OAuth flow
 	go bot.Connect()
-	log.Println("click this to authenticate:", <-bot.AuthLink)
 
 	// Watch for events, errors, and timers
 	timers := make(chan *timer)
