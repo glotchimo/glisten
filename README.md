@@ -58,6 +58,3 @@ for {
 }
 ```
 
-## Design
-
-See `DESIGN.md` for implementation details.
