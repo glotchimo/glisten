@@ -29,6 +29,8 @@ type Bot struct {
 
 func NewBot(opts *BotOptions) (*Bot, error) {
 	var bot Bot
+
+	bot.handlers = make(map[string]Handler)
 	bot.options = *opts
 
 	if err := authenticate(&bot); err != nil {
