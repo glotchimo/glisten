@@ -23,8 +23,8 @@ type tokenResponse struct {
 }
 
 func authenticate(bot *Bot) error {
-	log.Printf(
-		"Authentication URL: %s?client_id=%s&redirect_uri=%s&response_type=code&scope=%s\n",
+	fmt.Printf(
+		"%s?client_id=%s&redirect_uri=%s&response_type=code&scope=%s\n\n",
 		authURL,
 		bot.options.ClientID,
 		redirectURI,
