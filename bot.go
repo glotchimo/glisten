@@ -10,19 +10,14 @@ import (
 
 // BotOptions are the values needed for connecting the bot to a channel/user
 type BotOptions struct {
-	Channel      string
-	Username     string
-	ClientID     string
-	ClientSecret string
+	Channel  string
+	Username string
+	Password string
 }
 
 // Bot is an abstraction over Twitch IRC that facilitates the creation of
 // command-driven chat bots.
 type Bot struct {
-	// AuthLink is a single-slot buffered channel used at the start of the
-	// connection process to pass out an OAuth link.
-	AuthLink chan string
-
 	// Events is the channel where all events arrive after being handled by the
 	// registered handlers.
 	Events chan Event
@@ -34,10 +29,6 @@ type Bot struct {
 	client   *twitch.Client
 	handlers map[string]Handler
 	options  BotOptions
-	tokens   struct {
-		access  string
-		refresh string
-	}
 }
 
 // NewBot sets up a Bot with the provided options and opens its channels.
@@ -47,7 +38,6 @@ func NewBot(opts *BotOptions) (*Bot, error) {
 	bot.handlers = make(map[string]Handler)
 	bot.options = *opts
 
-	bot.AuthLink = make(chan string, 1)
 	bot.Events = make(chan Event)
 	bot.Errors = make(chan error)
 
@@ -62,12 +52,7 @@ func (b *Bot) AddHandler(trigger string, handler Handler) {
 // Connect launches the OAuth flow and, if completed, connects to Twitch IRC
 // and starts listening for messages, and should be launched in a goroutine.
 func (b *Bot) Connect() {
-	if err := authenticate(b); err != nil {
-		b.Errors <- fmt.Errorf("error authenticating with Twitch: %w", err)
-	}
-	close(b.AuthLink)
-
-	b.client = twitch.NewClient(b.options.Username, "oauth:"+b.tokens.access)
+	b.client = twitch.NewClient(b.options.Username, "oauth:"+b.options.Password)
 
 	b.client.OnConnect(func() {
 		log.Printf("bot connected to %s as %s\n", b.options.Channel, b.options.Username)

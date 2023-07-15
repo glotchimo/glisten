@@ -12,15 +12,17 @@ some options for authenticating with Twitch.
 
 ```go
 bot, err := gleam.NewBot(&gleam.BotOptions{
-    Channel:      "some channel",
-    Username:     "some username",
-    ClientID:     "some client ID",
-    ClientSecret: "some client secret",
+    Channel: "some channel",
+    Username: "some username",
+    Password: "some password",
 })
 if err != nil {
     log.Fatal("error creating new bot: ", err)
 }
 ```
+
+Note that you can make a bot password using [this](https://twitchapps.com/tmi/)
+implicit grant flow implementation.
 
 Once the bot's ready, the next step is handler registration using. Handler
 functions use a specific signature (`func (m gleam.Message) gleam.Event`) and
@@ -34,13 +36,11 @@ bot.AddHandler("!timer", func(m gleam.Message) gleam.Event {
 ```
 
 After we've added all our handlers, we go ahead and start the connection and
-listening process. Note that `bot.Connect` will send an authentication link
-on `bot.AuthLink` that needs to be followed to continue. Also note that that
-method is blocking and should be launched in a goroutine.
+listening process. Note that the `Bot.Connect` method is blocking and should be
+launched in a goroutine.
 
 ```go
 go bot.Connect()
-log.Println("click here to authenticate:", <-bot.AuthLink)
 ```
 
 Once we see a confirmation message in the browser tab and the program's logs,
