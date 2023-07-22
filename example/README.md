@@ -6,7 +6,6 @@ to see it in action.
 
 - `TWITCH_CHANNEL`: Channel to connect to
 - `TWITCH_USERNAME`: Username to authenticate with
-- `TWITCH_CLIENT_ID`: App client ID
-- `TWITCH_CLIENT_SECRET`: App client secret
+- `TWITCH_PASSWORD`: An OAuth token for the user
 
-See https://dev.twitch.tv for generating a client ID/secret.
+See the main README for details on creating such a token.
