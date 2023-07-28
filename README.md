@@ -1,4 +1,4 @@
-# gleam
+# glisten
 
 A simple Go framework for building command-driven Twitch chat bots.
 
@@ -7,11 +7,11 @@ A simple Go framework for building command-driven Twitch chat bots.
 Full examples can be found in `examples`, but we will walk through
 the essentials here.
 
-The first step is creating a new bot with `gleam.NewBot`. This method requires
+The first step is creating a new bot with `glisten.NewBot`. This method requires
 some options for authenticating with Twitch.
 
 ```go
-bot, err := gleam.NewBot(&gleam.BotOptions{
+bot, err := glisten.NewBot(&glisten.BotOptions{
     Channel: "some channel",
     Username: "some username",
     Password: "some password",
@@ -25,11 +25,11 @@ Note that you can make a bot password using [this](https://twitchapps.com/tmi/)
 implicit grant flow implementation.
 
 Once the bot's ready, the next step is handler registration using. Handler
-functions use a specific signature (`func (m gleam.Message) gleam.Event`) and
+functions use a specific signature (`func (m glisten.Message) glisten.Event`) and
 are registered using the `bot.AddHandler` method.
 
 ```go
-bot.AddHandler("!timer", func(m gleam.Message) gleam.Event {
+bot.AddHandler("!timer", func(m glisten.Message) glisten.Event {
     // ... do some stuff
     return Event{ ... }
 }

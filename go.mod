@@ -1,4 +1,4 @@
-module github.com/glotchimo/gleam
+module github.com/glotchimo/glisten
 
 go 1.20
 

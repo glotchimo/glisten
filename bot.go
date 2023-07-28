@@ -1,4 +1,4 @@
-package gleam
+package glisten
 
 import (
 	"fmt"
