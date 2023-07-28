@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 	"time"
 
-	"github.com/glotchimo/gleam"
+	"github.com/glotchimo/glisten"
+	"github.com/glotchimo/glisten/handlers"
 )
 
 type timer struct {
@@ -25,7 +25,7 @@ func (t *timer) Start(ch chan *timer) {
 
 func main() {
 	// Create a bot with credentials in the environment
-	bot, err := gleam.NewBot(&gleam.BotOptions{
+	bot, err := glisten.NewBot(&glisten.BotOptions{
 		Channel:  os.Getenv("TWITCH_CHANNEL"),
 		Username: os.Getenv("TWITCH_USERNAME"),
 		Password: os.Getenv("TWITCH_PASSWORD"),
@@ -35,24 +35,7 @@ func main() {
 	}
 
 	// Add a handler that creates an event to start a timer
-	bot.AddHandler("!timer", func(m gleam.Message) gleam.Event {
-		components := strings.Split(m.Message, " ")
-
-		var duration time.Duration
-		var err error
-		if len(components) < 2 {
-			return gleam.Event{}
-		} else if duration, err = time.ParseDuration(components[1]); err != nil {
-			return gleam.Event{}
-		}
-
-		return gleam.Event{
-			Type:     "timer",
-			UserID:   m.User.ID,
-			Username: m.User.Name,
-			Data:     duration,
-		}
-	})
+	bot.AddHandler("!timer", handlers.Timer)
 
 	// Connect the bot
 	go bot.Connect()

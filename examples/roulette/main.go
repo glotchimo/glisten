@@ -9,14 +9,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/glotchimo/gleam"
+	"github.com/glotchimo/glisten"
 )
 
 var bank = map[string]int{}
 
 func main() {
 	// Create a bot with credentials in the environment
-	bot, err := gleam.NewBot(&gleam.BotOptions{
+	bot, err := glisten.NewBot(&glisten.BotOptions{
 		Channel:  os.Getenv("TWITCH_CHANNEL"),
 		Username: os.Getenv("TWITCH_USERNAME"),
 		Password: os.Getenv("TWITCH_PASSWORD"),
@@ -26,18 +26,18 @@ func main() {
 	}
 
 	// Add a handler that fires a randomized roulette event with the given bet
-	bot.AddHandler("!roulette", func(m gleam.Message) gleam.Event {
+	bot.AddHandler("!roulette", func(m glisten.Message) glisten.Event {
 		components := strings.Split(m.Message, " ")
 
 		var bet int
 		var err error
 		if len(components) < 2 {
-			return gleam.Event{}
+			return glisten.Event{}
 		} else if bet, err = strconv.Atoi(components[1]); err != nil {
-			return gleam.Event{}
+			return glisten.Event{}
 		}
 
-		return gleam.Event{
+		return glisten.Event{
 			Type:     "roulette",
 			UserID:   m.User.ID,
 			Username: m.User.Name,
@@ -46,8 +46,8 @@ func main() {
 	})
 
 	// Add a handler that returns the given user's points
-	bot.AddHandler("!points", func(m gleam.Message) gleam.Event {
-		return gleam.Event{
+	bot.AddHandler("!points", func(m glisten.Message) glisten.Event {
+		return glisten.Event{
 			Type:     "points",
 			UserID:   m.User.ID,
 			Username: m.User.Name,
